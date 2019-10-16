@@ -1,0 +1,257 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+This notebook reviews common dataframe operations and compares with its counterpart from the pandas package in python
+
+# Reading a csv file in a dataframe
+
+```{r}
+df = read.csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv', header = TRUE)
+```
+
+df = pd.read_csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv')
+
+# Reading the first 5 rows of the dataframe
+
+```{r}
+head(df)
+```
+
+df.head()
+
+# Viewing all the variables in the dataframe & their dtypes
+```{r}
+str(df)
+```
+
+df.info()
+
+# Finding dimensions of the dataframe
+
+```{r}
+dim(df)
+```
+
+df.shape
+
+# Slice first 10 rows of the dataframe
+
+```{r}
+slice(df, 1:10)
+```
+
+df.iloc[0:9]
+
+# Querying the data frame
+### Single criteria
+
+##### Method 1
+
+```{r}
+filter(df, sepal_length == 5.0)
+```
+
+df.query('sepal_length == 5')
+
+##### Method 2
+
+```{r}
+df[df$sepal_length == 5.0,]
+```
+
+df[df.sepal_length == 5.0]
+
+### Multi criteria
+
+##### Method 1
+
+```{r}
+filter(df, sepal_length == 5.0, sepal_width == 3.0)
+```
+
+df.query('sepal_length == 5.0 & sepal_width == 3.0')
+
+##### Method 2
+
+```{r}
+df[df$sepal_length == 5.0 & df$sepal_width == 3.0,]
+```
+
+df[(df.sepal_length == 5.0) & (df.sepal_width == 3.0)]
+
+# Subsetting the dataframe for specific columns using column name
+
+```{r}
+select(df, sepal_length, sepal_width)
+```
+
+df[['sepal_length', 'sepal_width']]
+
+# Subsetting the dataframe for specific columns using names as indexer
+
+```{r}
+select(df, 'sepal_length':'petal_length')
+```
+
+#### Python code
+```
+df.loc[:,'sepal_length':'petal_length']
+```
+
+# Dropping duplicate values
+
+```{r}
+distinct(select(df, 'species'))
+```
+
+#### Python code
+```
+df[['species']].drop_duplicates()
+```
+# Sampling the dataframe
+
+```{r}
+sample_n(df,10)
+```
+
+```{r}
+sample_frac(df, 0.01)
+```
+
+
+#### Python
+```
+df.sample(n=10)
+```
+```
+df.sample(frac=0.01)
+```
+
+# Sorting in ascending manner
+
+```{r}
+arrange(df, sepal_length, sepal_width)
+```
+
+#### Python
+```
+df.sort_values(['sepal_length', 'sepal_width'])
+```
+
+# Sorting in descending
+
+```{r}
+arrange(df, desc(sepal_length, sepal_width))
+```
+
+#### Python
+```
+df.sort_values(['sepal_length', 'sepal_width'], ascending=False)
+```
+
+# Renaming column
+
+```{r}
+rename(df, splngth = sepal_length)
+```
+
+#### Python
+```
+df.rename(columns={'sepal_length' : 'splngth'})
+```
+
+# Calculating new field
+
+```{r}
+mutate(df, sepal_ratio=sepal_length/sepal_width)
+```
+
+#### Python
+
+```
+df.assign(sepal_ratio=df.sepal_length/df.sepal_width)
+```
+
+# Calculating summary statistics
+
+```{r}
+summary(df)
+```
+
+#### Python
+
+```
+df.describe()
+```
+
+# Groupby a column
+
+```{r}
+gdf <- group_by(df, species)
+```
+
+#### Python
+
+```
+gdf = df.groupby('species')
+```
+
+# Calculate summary statistics on grouped dataframe
+
+```{r}
+summarise(gdf, avg = mean(sepal_length, na.rm = TRUE))
+```
+
+```{r}
+summarise(gdf, total = sum(sepal_length))
+```
+
+#### Python
+
+```
+gdf.agg({'sepal_length': 'mean'})
+```
+```
+gdf['sepal_length'].sum()
+```
+
+# Concating dataframes
+
+```{r}
+df_setosa <- filter(df, species=='setosa')
+df_versicolor <- filter(df, species=='versicolor')
+df_new <- rbind(df_setosa, df_versicolor) 
+df_new
+```
+
+
+# Value counts
+
+```{r}
+df_sample = sample_frac(df, 0.2)
+count(df_sample, vars = species, wt_var = sepal_width)
+```
+
+# Replacing a value in dataframe
+
+```{r}
+library(dplyr)
+recode(df$species, versicolor = "versi", default=df$species)
+```
+
